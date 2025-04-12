@@ -7,6 +7,10 @@
 #include <iomanip>
 #include <string>
 
+#ifndef CHAR_BIT
+#define CHAR_BIT 8
+#endif
+
 struct Buffer{
    std::vector<uint8_t> data;
       
@@ -48,6 +52,21 @@ static std::string toHexString(Buffer buffer){
     return oss.str();
 }
 static Buffer toBuffer(uint16_t b);
+
+static uint8_t reverseByte(uint8_t b){
+    unsigned int v = b;
+    unsigned int r = v;
+    int s = sizeof(b) * CHAR_BIT - 1;
+
+    for(v>>=1;v;v>>=1){
+        r <<= 1;
+        r |= v&1;
+        s--;
+    }
+    r <<= s;
+    return r;
+}
+
 
 };
 
