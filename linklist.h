@@ -57,13 +57,4 @@ public:
 
 };
 
-int main(){
-    
-    link_list<int> li;
-    for(int i =0;i<10;i++)
-       li.insert(i);
-    li.print();
-    return 0;
-}
-
 
