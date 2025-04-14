@@ -103,3 +103,30 @@ static std::string ReadFile(std::string file)
     auto s = toString(fsbuffer);
     return s;
 }
+
+#include <string.h>
+size_t find(const char *text, const char *f){
+    size_t l1,l2;
+    l1= strlen(text);
+    l2= strlen(f);
+    if(l2>l1)return -1;
+    if(l2==l1)
+        return strcmp(text,f);
+    if(l2<=0)return -1;
+    size_t pos=-1;
+    for(size_t i =0;i<l1;i++){
+        if(text[i]==f[0])
+        {
+            pos=i;
+            for(size_t o=0;o<l2;o++){
+                if(text[i+o]==f[o])
+                    continue;
+                else
+                    pos = -1;
+            }
+            if(pos!=-1)
+                return pos;
+        }
+    }
+    return pos;
+}
