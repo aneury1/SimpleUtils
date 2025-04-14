@@ -11,69 +11,78 @@
 #define CHAR_BIT 8
 #endif
 
-struct Buffer{
-   std::vector<uint8_t> data;
-      
-   void setData(uint8_t* buffer, uint32_t size);
-   void setData(char* buffer, uint32_t size);
-   void setData(std::vector<uint8_t> buffer);
-   void Mid(std::vector<uint8_t>& res, int start, int end);
-   void Mid(std::string& res, int start, int end);
-   
-   void insertInto(std::vector<uint8_t> buffer, int where);
-   void insertInto(Buffer buffer, int where);
-   void insertInto(std::string buffer, int where);
-   void insertInto(char* buffer, int where);
-   
-   void append(uint8_t data);
-   
-   uint8_t operator[](size_t s){
-      return data[s];
-   }
+struct Buffer
+{
+    std::vector<uint8_t> data;
 
-   void removeFrom(int where, int count); 
-  
-   typedef void (*WorkerFunction)(Buffer *, unsigned char, int pos);
-   
-   void iterateOver(WorkerFunction worker);
+    std::vector<unsigned char>  pad(
+        std::size_t totalSize,
+        unsigned char padByte,
+        bool padLeft = false);
 
-   const uint32_t size()const{return data.size();}
+    void setData(uint8_t *buffer, uint32_t size);
+    void setData(char *buffer, uint32_t size);
+    void setData(std::vector<uint8_t> buffer);
+    void Mid(std::vector<uint8_t> &res, int start, int end);
+    void Mid(std::string &res, int start, int end);
 
+    void insertInto(std::vector<uint8_t> buffer, int where);
+    void insertInto(Buffer buffer, int where);
+    void insertInto(std::string buffer, int where);
+    void insertInto(char *buffer, int where);
+
+    void append(uint8_t data);
+
+    uint8_t operator[](size_t s)
+    {
+        return data[s];
+    }
+
+    void removeFrom(int where, int count);
+
+    typedef void (*WorkerFunction)(Buffer *, unsigned char, int pos);
+
+    void iterateOver(WorkerFunction worker);
+
+    const uint32_t size() const { return data.size(); }
 };
 
+struct ByteUtils
+{
 
-struct ByteUtils{
-
-static std::string toHexString(Buffer buffer){
-    std::ostringstream oss;
-    for (size_t i = 0; i < buffer.size(); ++i) {
-        oss << std::hex << std::setw(2) << std::setfill('0') << static_cast<int>(buffer[i]);
+    static std::string toHexString(Buffer buffer)
+    {
+        std::ostringstream oss;
+        for (size_t i = 0; i < buffer.size(); ++i)
+        {
+            oss << std::hex << std::setw(2) << std::setfill('0') << static_cast<int>(buffer[i]);
+        }
+        return oss.str();
     }
-    return oss.str();
-}
-static Buffer toBuffer(uint16_t b);
+    static Buffer toBuffer(uint16_t b);
 
-static uint8_t reverseByte(uint8_t b){
-    unsigned int v = b;
-    unsigned int r = v;
-    int s = sizeof(b) * CHAR_BIT - 1;
+    static uint8_t reverseByte(uint8_t b)
+    {
+        unsigned int v = b;
+        unsigned int r = v;
+        int s = sizeof(b) * CHAR_BIT - 1;
 
-    for(v>>=1;v;v>>=1){
-        r <<= 1;
-        r |= v&1;
-        s--;
+        for (v >>= 1; v; v >>= 1)
+        {
+            r <<= 1;
+            r |= v & 1;
+            s--;
+        }
+        r <<= s;
+        return r;
     }
-    r <<= s;
-    return r;
-}
-
-
 };
 
-Buffer ByteUtils::toBuffer(uint16_t b){
+Buffer ByteUtils::toBuffer(uint16_t b)
+{
     Buffer ret;
-    ret.append(b>>8);
-    ret.append(b&0x00FF);
+    ret.append(b >> 8);
+    ret.append(b & 0x00FF);
     return ret;
 }
 
@@ -82,50 +91,60 @@ void Buffer::append(uint8_t data)
     this->data.emplace_back(data);
 }
 
-
-
-void Buffer::setData(uint8_t* buffer, uint32_t size){
+void Buffer::setData(uint8_t *buffer, uint32_t size)
+{
     data.clear();
-    data.reserve(size+16);
-    for(int32_t i =0;i<size;i++){
+    data.reserve(size + 16);
+    for (int32_t i = 0; i < size; i++)
+    {
         data.emplace_back(buffer[i]);
     }
 }
 
-void Buffer::setData(char* buffer, uint32_t size){
+void Buffer::setData(char *buffer, uint32_t size)
+{
     data.clear();
-    data.reserve(size+16);
-    for(int32_t i =0;i<size;i++){
+    data.reserve(size + 16);
+    for (int32_t i = 0; i < size; i++)
+    {
         data.emplace_back((uint8_t)buffer[i]);
     }
 }
 
-void Buffer::setData(std::vector<uint8_t> buffer){
+void Buffer::setData(std::vector<uint8_t> buffer)
+{
     setData(buffer.data(), buffer.size());
 }
 
-void Buffer::Mid(std::vector<uint8_t>& res, int start, int end){
-    if((end>start)&&(end-start < data.size())){
-       int cnt = end-start;
-       for(int i=0;i<cnt;i++){
-          res.emplace_back(data[i+start]);
-       }
+void Buffer::Mid(std::vector<uint8_t> &res, int start, int end)
+{
+    if ((end > start) && (end - start < data.size()))
+    {
+        int cnt = end - start;
+        for (int i = 0; i < cnt; i++)
+        {
+            res.emplace_back(data[i + start]);
+        }
     }
 }
 
-void Buffer::Mid(std::string& res, int start, int end){
-    if((end>start)){
-       int cnt = end-start;
-       for(int i=0;i<cnt;i++){
-          res+=data[i+start];
-       }
-       res[cnt]={0x00};
+void Buffer::Mid(std::string &res, int start, int end)
+{
+    if ((end > start))
+    {
+        int cnt = end - start;
+        for (int i = 0; i < cnt; i++)
+        {
+            res += data[i + start];
+        }
+        res[cnt] = {0x00};
     }
 }
 
 void Buffer::insertInto(std::vector<uint8_t> buffer, int where)
 {
-    if (where < 0 || where > static_cast<int>(data.size())) {
+    if (where < 0 || where > static_cast<int>(data.size()))
+    {
         std::cerr << "Invalid insert position\n";
         return;
     }
@@ -135,25 +154,26 @@ void Buffer::insertInto(std::vector<uint8_t> buffer, int where)
 
 void Buffer::insertInto(Buffer buffer, int where)
 {
-    this->insertInto(buffer.data, where);    
+    this->insertInto(buffer.data, where);
 }
 
 void Buffer::insertInto(std::string buffer, int where)
 {
     Buffer data;
     data.setData(buffer.data(), buffer.size());
-    this->insertInto(data,where);
+    this->insertInto(data, where);
 }
-   
-void Buffer::insertInto(char* buffer, int where)
+
+void Buffer::insertInto(char *buffer, int where)
 {
     Buffer data;
-    data.setData(buffer,strlen(buffer));
-    this->insertInto(data,where);
+    data.setData(buffer, strlen(buffer));
+    this->insertInto(data, where);
 }
-void Buffer::removeFrom(int where, int count) 
+void Buffer::removeFrom(int where, int count)
 {
-    if (where < 0 || where >= static_cast<int>(data.size())) {
+    if (where < 0 || where >= static_cast<int>(data.size()))
+    {
         std::cerr << "Invalid start position\n";
         return;
     }
@@ -166,10 +186,34 @@ void Buffer::removeFrom(int where, int count)
 
 void Buffer::iterateOver(WorkerFunction worker)
 {
-   for(int i=0;i<data.size();i++){
-     uint8_t p = data[i];
-     worker(this, p, i);
-   }
+    for (int i = 0; i < data.size(); i++)
+    {
+        uint8_t p = data[i];
+        worker(this, p, i);
+    }
 }
 
- 
+std::vector<unsigned char> Buffer::pad(
+    std::size_t totalSize,
+    unsigned char padByte,
+    bool padLeft = false)
+{
+    std::vector<uint8_t> &input = data;
+    if (input.size() >= totalSize)
+        return input;
+
+    std::size_t padSize = totalSize - input.size();
+    std::vector<unsigned char> padding(padSize, padByte);
+    std::vector<unsigned char> result;
+    if (padLeft)
+    {
+        result = padding;
+        result.insert(result.end(), input.begin(), input.end());
+    }
+    else
+    {
+        result = input;
+        result.insert(result.end(), padding.begin(), padding.end());
+    }
+    data = result;
+}

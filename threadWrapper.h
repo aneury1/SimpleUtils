@@ -1,6 +1,6 @@
 #ifndef THREAD_WRAPPER_H_DEFINED
 #define THREAD_WRAPPER_H_DEFINED
-
+#include <thread>
 class ThreadWrapper {
 	std::thread the_thread;
 public:
