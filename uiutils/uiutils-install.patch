@@ -1,0 +1,59 @@
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -1,5 +1,7 @@
+ cmake_minimum_required(VERSION 3.20)
+ project(uiutils VERSION 0.7.0 LANGUAGES CXX)
++include(GNUInstallDirs)
++include(CMakePackageConfigHelpers)
+ option(UIUTILS_BUILD_LIBRARY "Build the wxWidgets backend" ON)
+ option(UIUTILS_BUILD_SAMPLE "Build the samples" ON)
+ option(UIUTILS_BUILD_TESTS "Build GoogleTest tests" OFF)
+@@ -62,7 +64,9 @@
+         pkg_check_modules(POPPLER_CPP REQUIRED IMPORTED_TARGET poppler-cpp)
+         target_link_libraries(uiutils PRIVATE PkgConfig::POPPLER_CPP)
+     endif()
+-    target_include_directories(uiutils PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>)
++    target_include_directories(uiutils PUBLIC
++        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
++        $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>)
+     # Backend-only wxWidgets dependency: public headers use standard C++ types.
+     target_include_directories(uiutils PRIVATE ${wxWidgets_INCLUDE_DIRS})
+     target_compile_definitions(uiutils PRIVATE ${wxWidgets_DEFINITIONS})
+@@ -78,6 +82,19 @@
+     endif()
+     target_link_libraries(uiutils PUBLIC ${wxWidgets_LIBRARIES})
+     set_target_properties(uiutils PROPERTIES CXX_EXTENSIONS OFF POSITION_INDEPENDENT_CODE ON)
++    install(TARGETS uiutils EXPORT uiutilsTargets
++        ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR})
++    install(DIRECTORY include/uiutils DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
++    install(EXPORT uiutilsTargets FILE uiutilsTargets.cmake NAMESPACE uiutils::
++        DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/uiutils)
++    configure_package_config_file(cmake/uiutilsConfig.cmake.in
++        ${CMAKE_CURRENT_BINARY_DIR}/uiutilsConfig.cmake
++        INSTALL_DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/uiutils)
++    write_basic_package_version_file(${CMAKE_CURRENT_BINARY_DIR}/uiutilsConfigVersion.cmake
++        VERSION ${PROJECT_VERSION} COMPATIBILITY SameMajorVersion)
++    install(FILES ${CMAKE_CURRENT_BINARY_DIR}/uiutilsConfig.cmake
++        ${CMAKE_CURRENT_BINARY_DIR}/uiutilsConfigVersion.cmake
++        DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/uiutils)
+ endif()
+ if(UIUTILS_BUILD_SAMPLE)
+     if(NOT UIUTILS_BUILD_LIBRARY)
+diff --git a/cmake/uiutilsConfig.cmake.in b/cmake/uiutilsConfig.cmake.in
+new file mode 100644
+--- /dev/null
++++ b/cmake/uiutilsConfig.cmake.in
+@@ -0,0 +1,12 @@
++@PACKAGE_INIT@
++include(CMakeFindDependencyMacro)
++find_dependency(wxWidgets REQUIRED COMPONENTS core base)
++if(@UIUTILS_ENABLE_CODES@)
++    find_dependency(ZXing 2.2 CONFIG REQUIRED)
++endif()
++if(@UIUTILS_ENABLE_PDF@)
++    find_dependency(PkgConfig REQUIRED)
++    pkg_check_modules(POPPLER_CPP REQUIRED IMPORTED_TARGET poppler-cpp)
++endif()
++include("${CMAKE_CURRENT_LIST_DIR}/uiutilsTargets.cmake")
++check_required_components(uiutils)

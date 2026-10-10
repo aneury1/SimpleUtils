@@ -1,5 +1,0 @@
-/build*/
-/install-check/
-*.o
-*.a
-*.lib
