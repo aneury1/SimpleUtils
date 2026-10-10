@@ -1,0 +1,9 @@
+@PACKAGE_INIT@
+
+include(CMakeFindDependencyMacro)
+
+find_dependency(wxWidgets REQUIRED COMPONENTS core base)
+
+include("${CMAKE_CURRENT_LIST_DIR}/uiutilsTargets.cmake")
+
+check_required_components(uiutils)

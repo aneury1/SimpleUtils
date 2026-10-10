@@ -1,0 +1,5 @@
+cmake_minimum_required(VERSION 3.16)
+project(SimpleUtilsInstalledConsumer LANGUAGES CXX)
+find_package(SimpleUtils 1 CONFIG REQUIRED)
+add_executable(consumer main.cpp other.cpp)
+target_link_libraries(consumer PRIVATE simpleutils::simpleutils)
