@@ -2,6 +2,7 @@ cmake_minimum_required(VERSION 3.20)
 project(uiutils VERSION 0.7.0 LANGUAGES CXX)
 include(GNUInstallDirs)
 include(CMakePackageConfigHelpers)
+
 option(UIUTILS_BUILD_LIBRARY "Build the wxWidgets backend" ON)
 option(UIUTILS_BUILD_SAMPLE "Build the samples" ON)
 option(UIUTILS_BUILD_TESTS "Build GoogleTest tests" OFF)
@@ -10,11 +11,34 @@ option(UIUTILS_FETCH_GTEST "Download GoogleTest if it is not installed" OFF)
 option(UIUTILS_ENABLE_CODES "Enable QR and barcode images (ZXing-C++ 2.x)" OFF)
 option(UIUTILS_ENABLE_CHARTS "Enable internal bar/line chart rendering" ON)
 option(UIUTILS_ENABLE_PDF "Enable PDF rendering (Poppler C++)" OFF)
-option(UIUTILS_FETCH_ZXING "Fetch pinned ZXing-C++ instead of using a system installation" OFF)
+option(UIUTILS_FETCH_ZXING "Fetch pinned ZXing-C++ instead of using a system installation" ON)
+option(UIUTILS_FETCH_WXWIDGET "Fetch pinned wxWidget instead of using a system installation" ON)
+
+set(UIUTILS_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/include)
+set(UIUTILS_LIBS_DIR ${CMAKE_CURRENT_BINARY_DIR})
+
 if(UIUTILS_BUILD_LIBRARY)
-    find_package(wxWidgets REQUIRED COMPONENTS core base)
-    add_library(uiutils STATIC src/layout.cpp src/UiApplication.cpp src/activity.cpp src/Elements.cpp src/Style.cpp
-        src/RenderSource.cpp src/RenderCodes.cpp src/RenderCharts.cpp src/RenderPdf.cpp)
+    if(UIUTILS_FETCH_WXWIDGET)
+        include(FetchContent)
+        FetchContent_Declare(wxwidget
+            GIT_REPOSITORY https://github.com/wxWidgets/wxWidgets.git
+        )
+        FetchContent_MakeAvailable(wxwidget)
+        set(wxWidgets_LIBRARIES wx::core wx::base)
+    else()
+        find_package(wxWidgets REQUIRED COMPONENTS core base)
+    endif()
+    add_library(uiutils STATIC
+        src/layout.cpp
+        src/UiApplication.cpp
+        src/activity.cpp
+        src/Elements.cpp
+        src/Style.cpp
+        src/RenderSource.cpp
+        src/RenderCodes.cpp
+        src/RenderCharts.cpp
+        src/RenderPdf.cpp
+    )
     add_library(uiutils::uiutils ALIAS uiutils)
     target_compile_features(uiutils PUBLIC cxx_std_17)
     target_compile_definitions(uiutils PRIVATE
@@ -80,6 +104,7 @@ if(UIUTILS_BUILD_LIBRARY)
     if(wxWidgets_LIBRARY_DIRS)
         target_link_directories(uiutils PUBLIC ${wxWidgets_LIBRARY_DIRS})
     endif()
+    message("WXWIDGET LIBRERIES: ${wxWidgets_LIBRARIES}")
     target_link_libraries(uiutils PUBLIC ${wxWidgets_LIBRARIES})
     set_target_properties(uiutils PROPERTIES CXX_EXTENSIONS OFF POSITION_INDEPENDENT_CODE ON)
     install(TARGETS uiutils EXPORT uiutilsTargets
@@ -96,13 +121,17 @@ if(UIUTILS_BUILD_LIBRARY)
         ${CMAKE_CURRENT_BINARY_DIR}/uiutilsConfigVersion.cmake
         DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/uiutils)
 endif()
+
 if(UIUTILS_BUILD_SAMPLE)
     if(NOT UIUTILS_BUILD_LIBRARY)
         message(FATAL_ERROR "Samples require UIUTILS_BUILD_LIBRARY=ON")
     endif()
     add_subdirectory(sample)
+    add_subdirectory(tutorial)
 endif()
+
 if(UIUTILS_BUILD_TESTS)
+    include(CTest)
     enable_testing()
     add_subdirectory(tests)
 elseif(UIUTILS_BUILD_GUI_TESTS)

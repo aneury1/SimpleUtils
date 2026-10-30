@@ -1,14 +1,21 @@
 cmake_minimum_required(VERSION 3.16)
 project(SimpleUtils VERSION 1.0.0 LANGUAGES CXX)
+
 include(GNUInstallDirs)
 include(CMakePackageConfigHelpers)
+
 option(SIMPLEUTILS_BUILD_TESTS "Build GoogleTest suite" OFF)
 option(SIMPLEUTILS_FETCH_GTEST "Download GoogleTest if not installed" OFF)
 option(SIMPLEUTILS_BUILD_EXAMPLES "Build examples" OFF)
+
+set(BACKENDUTILS_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/include)
+
 find_package(OpenSSL 1.1.1 REQUIRED COMPONENTS Crypto)
 find_package(Threads REQUIRED)
+
 add_library(simpleutils STATIC src/stringUtils.cpp src/encryptionUtils.cpp src/socketUtils.cpp src/httpUtils.cpp src/ipUtils.cpp src/sslHelper.cpp src/cmdUtils.cpp)
 add_library(simpleutils::simpleutils ALIAS simpleutils)
+
 target_compile_features(simpleutils PUBLIC cxx_std_17)
 target_include_directories(simpleutils PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include> $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>)
 target_link_libraries(simpleutils PUBLIC OpenSSL::Crypto Threads::Threads)
@@ -29,6 +36,7 @@ write_basic_package_version_file(${CMAKE_CURRENT_BINARY_DIR}/SimpleUtilsConfigVe
 install(EXPORT SimpleUtilsTargets FILE SimpleUtilsTargets.cmake NAMESPACE simpleutils:: DESTINATION ${config_dir})
 install(FILES ${CMAKE_CURRENT_BINARY_DIR}/SimpleUtilsConfig.cmake ${CMAKE_CURRENT_BINARY_DIR}/SimpleUtilsConfigVersion.cmake DESTINATION ${config_dir})
 if(SIMPLEUTILS_BUILD_TESTS)
+  include(CTest)
   enable_testing()
   add_subdirectory(test)
 endif()

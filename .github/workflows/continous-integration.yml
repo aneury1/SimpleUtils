@@ -114,7 +114,7 @@ jobs:
         # Note the current convention is to use the -S and -B options here to specify source 
         # and build directories, but this is only available with CMake 3.13 and higher.  
         # The CMake binaries on the Github Actions machines are (as of this writing) 3.12
-        run: cmake -S . -B build -DCMAKE_BUILD_TYPE=Debug
+        run: cmake -S . -B build -DCMAKE_BUILD_TYPE=Debug -DSIMPLEUTILS_BUILD_TESTS=ON -DUIUTILS_BUILD_TESTS=ON -DUIUTILS_BUILD_GUI_TESTS=ON -DUIUTILS_FETCH_GTEST=ON
 
       - name: Build
         working-directory: ${{github.workspace}}
@@ -128,8 +128,10 @@ jobs:
         with:
           name: library-windows
           path: |
-            build/**/*.dll
-            build/**/*.lb
+            build/uiutils/**/*.dll
+            build/uiutils/**/*.lib
+            build/backendutils/**/*.dll
+            build/backendutils/**/*.lib
 
       - name: Upload Linux artifact
         if: matrix.platform_name == 'ubuntu'
@@ -137,15 +139,17 @@ jobs:
         with:
           name: library-linux
           path: |
-            build/**/*.so*
-            build/**/*.a*
+            build/uiutils/**/*.so*
+            build/uiutils/**/*.a*
+            build/backendutils/**/*.so*
+            build/backendutils/**/*.a*
 
       - name: Running tests
-        shell: bash
         working-directory: ${{github.workspace}}
+        shell: bash
         run: |
-          ctest --test-dir build/uiutils
-          ctest --test-dir build/backendutils
+          ctest --test-dir build/uiutils/
+          ctest --test-dir build/backendutils/
 
       # - name: Cache CMake dependency source code
       #   uses: actions/cache@v3

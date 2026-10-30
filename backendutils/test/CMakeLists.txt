@@ -15,11 +15,25 @@ else()
     FetchContent_MakeAvailable(googletest)
   endif()
 endif()
-add_executable(simpleutils_tests strings_test.cpp utilities_test.cpp encryption_test.cpp network_test.cpp misc_test.cpp odr_test.cpp)
+
+add_executable(simpleutils_tests
+  strings_test.cpp
+  utilities_test.cpp
+  encryption_test.cpp
+  network_test.cpp
+  misc_test.cpp
+  odr_test.cpp
+)
+
+message("BACKENDUTILS_INCLUDE_DIR: ${BACKENDUTILS_INCLUDE_DIR}")
+target_include_directories(simpleutils_tests PRIVATE ${BACKENDUTILS_INCLUDE_DIR})
+
 if(TARGET GTest::gtest_main)
   target_link_libraries(simpleutils_tests PRIVATE simpleutils::simpleutils GTest::gtest_main)
 else()
   target_link_libraries(simpleutils_tests PRIVATE simpleutils::simpleutils GTest::Main)
 endif()
+
 include(GoogleTest)
+
 gtest_discover_tests(simpleutils_tests DISCOVERY_TIMEOUT 30 PROPERTIES TIMEOUT 20)
