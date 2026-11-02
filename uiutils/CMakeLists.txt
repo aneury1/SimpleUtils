@@ -13,9 +13,15 @@ option(UIUTILS_ENABLE_CHARTS "Enable internal bar/line chart rendering" ON)
 option(UIUTILS_ENABLE_PDF "Enable PDF rendering (Poppler C++)" OFF)
 option(UIUTILS_FETCH_ZXING "Fetch pinned ZXing-C++ instead of using a system installation" ON)
 option(UIUTILS_FETCH_WXWIDGET "Fetch pinned wxWidget instead of using a system installation" ON)
+option(UIUTILS_SHARED "Compile library as shared object" OFF)
 
 set(UIUTILS_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/include)
 set(UIUTILS_LIBS_DIR ${CMAKE_CURRENT_BINARY_DIR})
+set(UIUTILS_LIBRARY_TYPE STATIC)
+
+if(UIUTILS_SHARED)
+    set(UIUTILS_LIBRARY_TYPE SHARED)
+endif()
 
 if(UIUTILS_BUILD_LIBRARY)
     if(UIUTILS_FETCH_WXWIDGET)
@@ -28,7 +34,7 @@ if(UIUTILS_BUILD_LIBRARY)
     else()
         find_package(wxWidgets REQUIRED COMPONENTS core base)
     endif()
-    add_library(uiutils STATIC
+    add_library(uiutils ${UIUTILS_LIBRARY_TYPE}
         src/layout.cpp
         src/UiApplication.cpp
         src/activity.cpp
@@ -130,10 +136,9 @@ if(UIUTILS_BUILD_SAMPLE)
     add_subdirectory(tutorial)
 endif()
 
-if(UIUTILS_BUILD_TESTS)
-    include(CTest)
+if(UIUTILS_BUILD_TESTS AND BUILD_TESTING)
     enable_testing()
     add_subdirectory(tests)
-elseif(UIUTILS_BUILD_GUI_TESTS)
+elseif(UIUTILS_BUILD_GUI_TESTS AND NOT UIUTILS_BUILD_TESTS)
     message(FATAL_ERROR "GUI tests require UIUTILS_BUILD_TESTS=ON")
 endif()
