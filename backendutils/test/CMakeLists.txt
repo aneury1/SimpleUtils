@@ -23,6 +23,8 @@ add_executable(simpleutils_tests
   network_test.cpp
   misc_test.cpp
   odr_test.cpp
+  utDependencyServiceManager.cpp
+  ModuleLoaderTest.cpp
 )
 
 message("BACKENDUTILS_INCLUDE_DIR: ${BACKENDUTILS_INCLUDE_DIR}")
