@@ -13,7 +13,15 @@ set(BACKENDUTILS_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/include)
 find_package(OpenSSL 1.1.1 REQUIRED COMPONENTS Crypto)
 find_package(Threads REQUIRED)
 
-add_library(simpleutils STATIC src/stringUtils.cpp src/encryptionUtils.cpp src/socketUtils.cpp src/httpUtils.cpp src/ipUtils.cpp src/sslHelper.cpp src/cmdUtils.cpp)
+add_library(simpleutils STATIC
+      src/stringUtils.cpp
+      src/encryptionUtils.cpp
+      src/socketUtils.cpp
+      src/httpUtils.cpp
+      src/ipUtils.cpp
+      src/sslHelper.cpp
+      src/cmdUtils.cpp
+)
 add_library(simpleutils::simpleutils ALIAS simpleutils)
 
 target_compile_features(simpleutils PUBLIC cxx_std_17)
@@ -36,7 +44,6 @@ write_basic_package_version_file(${CMAKE_CURRENT_BINARY_DIR}/SimpleUtilsConfigVe
 install(EXPORT SimpleUtilsTargets FILE SimpleUtilsTargets.cmake NAMESPACE simpleutils:: DESTINATION ${config_dir})
 install(FILES ${CMAKE_CURRENT_BINARY_DIR}/SimpleUtilsConfig.cmake ${CMAKE_CURRENT_BINARY_DIR}/SimpleUtilsConfigVersion.cmake DESTINATION ${config_dir})
 if(SIMPLEUTILS_BUILD_TESTS)
-  include(CTest)
   enable_testing()
   add_subdirectory(test)
 endif()

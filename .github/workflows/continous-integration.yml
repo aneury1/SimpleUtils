@@ -5,12 +5,13 @@ on:
   pull_request:
     paths-ignore:
       - '.github/workflows/**'
-      - 'assets/**'
+      - '**/assets/**'
       - '**.md'
       - '.clang-format'
       - '.gitignore'
+      - '.gitattributes'
     branches:
-      - main
+      - master
     types: [opened, synchronize]
 
 jobs:
@@ -69,7 +70,7 @@ jobs:
         if: matrix.platform_name == 'ubuntu'
         uses: lukka/get-cmake@latest
         with:
-          cmakeVersion: 4.2.3
+          cmakeVersion: 4.4
 
       - name: Install Linux Dependencies (Artix-linux)
         if: matrix.platform_name == 'artix-linux'
@@ -114,13 +115,26 @@ jobs:
         # Note the current convention is to use the -S and -B options here to specify source 
         # and build directories, but this is only available with CMake 3.13 and higher.  
         # The CMake binaries on the Github Actions machines are (as of this writing) 3.12
-        run: cmake -S . -B build -DCMAKE_BUILD_TYPE=Debug -DSIMPLEUTILS_BUILD_TESTS=ON -DUIUTILS_BUILD_TESTS=ON -DUIUTILS_BUILD_GUI_TESTS=ON -DUIUTILS_FETCH_GTEST=ON
+        run: |
+          rm -rf build
+          cmake -S . -B build \
+                        -DCMAKE_BUILD_TYPE=Debug \
+                        -DBUILD_TESTING=ON \
+                        -DSIMPLEUTILS_BUILD_TESTS:BOOL=ON \
+                        -DUIUTILS_BUILD_TESTS:BOOL=ON \
+                        -DUIUTILS_BUILD_GUI_TESTS:BOOL=ON \
+                        -DSIMPLEUTILS_FETCH_GTEST=ON \
+                        -DUIUTILS_FETCH_GTEST=ON \
+                        -DUIUTILS_BUILD_SAMPLE=OFF
+
+      - name: Verify test options
+        run: grep -E 'SIMPLEUTILS_BUILD_TESTS|UIUTILS_BUILD_TESTS|UIUTILS_BUILD_GUI_TESTS' build/CMakeCache.txt
 
       - name: Build
         working-directory: ${{github.workspace}}
         shell: bash
         # Execute the build.  You can specify a specific target with "--target <NAME>"
-        run: cmake --build build -j4 --config Debug
+        run: cmake --build build --config Debug -j4
 
       - name: Upload Windows artifact
         if: matrix.platform_name == 'windows'
@@ -148,8 +162,13 @@ jobs:
         working-directory: ${{github.workspace}}
         shell: bash
         run: |
-          ctest --test-dir build/uiutils/
-          ctest --test-dir build/backendutils/
+          ls -l build/uiutils/
+          ls -l build/backendutils/
+          ctest --test-dir build/uiutils -C Debug --output-on-failure
+          ctest --test-dir build/backendutils -C Debug --output-on-failure
+          ./build/uiutils/tests/uiutils_gui_tests
+          ./build/uiutils/tests/uiutils_unit_tests
+          ./build/backendutils/test/simpleutils_tests
 
       # - name: Cache CMake dependency source code
       #   uses: actions/cache@v3
