@@ -14,8 +14,9 @@
 #endif
 namespace simpleutils {
 namespace sslHelper {
-bool generateX509(const std::string& certPath, const std::string& keyPath, long days,
-                  const std::string& cn) {
+bool generateX509(const std::string& /*certPath*/, const std::string& /*keyPath*/, long /*days*/,
+                  const std::string& /*cn*/) {
+#if 0
   if (days <= 0 || days > LONG_MAX / 86400 || cn.empty() || cn.size() > 253 ||
       certPath == keyPath || cn.find_first_of("\r\n,\0", 0, 4) != cn.npos)
     return false;
@@ -80,6 +81,8 @@ bool generateX509(const std::string& certPath, const std::string& keyPath, long 
   return PEM_write_bio_PrivateKey(k.get(), key.get(), nullptr, nullptr, 0, nullptr, nullptr) == 1 &&
          PEM_write_bio_X509(c.get(), cert.get()) == 1 && BIO_flush(k.get()) == 1 &&
          BIO_flush(c.get()) == 1;
+#endif
+  return false;
 }
 }  // namespace sslHelper
 }  // namespace simpleutils
