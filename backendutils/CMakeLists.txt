@@ -9,6 +9,7 @@ option(SIMPLEUTILS_FETCH_GTEST "Download GoogleTest if not installed" OFF)
 option(SIMPLEUTILS_BUILD_EXAMPLES "Build examples" OFF)
 option(SIMPLEUTILS_SHARED "Compile library as shared object" OFF)
 
+
 set(SIMPLEUTILS_LIBRARY_TYPE STATIC)
 if(SIMPLEUTILS_SHARED)
     set(SIMPLEUTILS_LIBRARY_TYPE SHARED)
