@@ -7,9 +7,6 @@
 
 namespace simpleutils{
 
-
-
-
 struct ArgumentHandler {
     std::unordered_map<std::string, std::vector<std::string>> _args;
     std::string _separator;
@@ -39,6 +36,12 @@ struct ArgumentHandler {
     std::optional<std::vector<std::string>> getValue(const std::string &opt) {
         auto it = _args.find(opt);
         if (it == _args.end()) return std::nullopt;
+        return it->second;
+    }
+
+    std::vector<std::string> getValueOr(const std::string &opt, std::vector<std::string> def) {
+        auto it = _args.find(opt);
+        if (it == _args.end()) return def;
         return it->second;
     }
 };
