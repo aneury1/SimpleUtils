@@ -29,6 +29,7 @@ set(SIMPLEUTILS_SRC
       src/ipUtils.cpp
       src/sslHelper.cpp
       src/cmdUtils.cpp
+      src/DirectoryUtils.cpp
 )
 
 function(setup_library library_name library_type)
