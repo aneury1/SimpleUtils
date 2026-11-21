@@ -1,7 +1,10 @@
 #pragma once
 #include <algorithm>
 #include <stdexcept>
-
+#include <cstdint>
+#include <fstream>
+#include <string>
+#include <vector>
 #include "stringUtils.h"
 namespace simpleutils {
 struct Buffer {
@@ -75,4 +78,27 @@ struct ByteUtils {
     return r;
   }
 };
+
+
+
+std::vector<uint8_t> readBinaryFile(const std::string& path)
+{
+    std::ifstream file(path, std::ios::binary | std::ios::ate);
+    if (!file)
+        throw std::runtime_error("Cannot open file: " + path);
+
+    const std::streamsize size = file.tellg();
+    if (size < 0)
+        throw std::runtime_error("Cannot determine size: " + path);
+
+    file.seekg(0, std::ios::beg);
+
+    std::vector<uint8_t> data(static_cast<size_t>(size));
+    if (size > 0 && !file.read(reinterpret_cast<char*>(data.data()), size))
+        throw std::runtime_error("Read failed: " + path);
+
+    return data;
+}
+
+
 }  // namespace simpleutils
