@@ -95,4 +95,7 @@ std::string formatWithClangFormat(const std::string& code, const std::string& ex
   return ReadFile(path);
 #endif
 }
+
+
+
 }  // namespace simpleutils

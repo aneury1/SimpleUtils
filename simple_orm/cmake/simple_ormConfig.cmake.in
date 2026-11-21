@@ -1,0 +1,7 @@
+@PACKAGE_INIT@
+include(CMakeFindDependencyMacro)
+if(NOT "@SIMPLE_ORM_SQLITE_PROVIDER@" STREQUAL "FETCH_3540100")
+    find_dependency(SQLite3 3.37)
+endif()
+include("${CMAKE_CURRENT_LIST_DIR}/simple_ormTargets.cmake")
+check_required_components(simple_orm)
