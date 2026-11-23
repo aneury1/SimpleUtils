@@ -31,4 +31,12 @@ std::vector<std::vector<std::string>> parseCSVText(std::string_view text, char d
 std::string toHex(const std::vector<uint8_t>& bytes, bool uppercase = false);
 std::vector<uint8_t> fromHex(std::string_view hex);
 size_t find(const char* text, const char* needle);
+
+std::string trim(std::string s) {
+    const auto x=s.find_first_not_of(" \r\n\t");
+    if(x==std::string::npos) return {};
+    const auto y=s.find_last_not_of(" \r\n\t");
+    return s.substr(x,y-x+1);
+}
+
 }  // namespace simpleutils
